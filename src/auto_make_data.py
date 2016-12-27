@@ -9,10 +9,10 @@ def makefilelist():
     ret = subprocess.getoutput('ls')
     #改行文字で分けてリストを作る
     filelist = ret.split('\n')
-    #リストの中から、拡張子が.woutのみを取り出し、リストに格納
+    #リストの中から、拡張子に.woutがあるもののみを取り出し、リストに格納
     namelist = []
     for filename in filelist:
-        if mymatch('\.wout$', filename):
+        if mymatch('\.wout', filename):
             namelist.append(filename)
     #リストを返す
     print(len(namelist))
@@ -47,9 +47,10 @@ def result():
 
     fout1.close()
     #以降をすべてのファイル名に対して、繰り返す
+    fileflag = True
     for name in namelist:
         #bptest.parを読み込む
-        fout2 = open('bptest.par', 'rw')
+        fout2 = open('bptest.par', 'rt')
         #Weight for init の行を書き換え
         text = ''
         for line in fout2:
@@ -58,17 +59,59 @@ def result():
             else:
                 text += line
         
-        fout2.write(text)
-        #テストデータに対する実行
-        result1 = 
-        result1 = subprocess.getoutput('./a.out')
-        #結果をファイルに(result_test.txt or result_test.csv)
-        #Datafile for Test　の行を書き換え
-        #学習データに対する実行
-        #結果をファイルに(result_learn.txt or result_learn.csv)
-        #Datafile for Testの行を再書き換え
-        #クローズ
         fout2.close()
+        fout2 = open('bptest.par', 'wt')
+        fout2.write(text)
+        fout2.close()
+        #テストデータに対する実行
+        result1 =''
+        result1 = name[11:] + ','
+        result1 += subprocess.getoutput('./a.out')
+        #結果をファイルに(result_test.txt)
+        if fileflag:
+            fout3 = open('result_test.txt', 'wt')
+        else:
+            fout3 = open('result_test.txt', 'at')
+        fout3.write(result1)
+        fout3.close()
+        #Datafile for Test　の行を書き換え
+        fout2 = open('bptest.par', 'rt')
+        text = ''
+        for line in fout2:
+            if mymatch(r'Datafile for Test:', line)
+                text += 'Datafile for Test: ' + 'bphalflist1.txt' + '\n'
+            else:
+                text += line
+        
+        fout2.close()
+        fout2 = open('bptest.par', 'wt')
+        fout2.write(text)
+        fout2.close()
+        #学習データに対する実行
+        result2 = ''
+        result2 = name[11:] + ','
+        result2 += subprocess.getoutput('./a.out')
+        #結果をファイルに(result_learn.txt)
+        if fileflag:
+            fout3 = open('result_learn.txt', 'wt')
+        else:
+            fout3 = open('result_learn.txt', 'at')
+        fout3.write(result2)
+        fout3.close()
+        #Datafile for Testの行を再書き換え
+        fout2 = open('bptest.par', 'rt')
+        text = ''
+        for line in fout2:
+            if mymatch(r'Datafile for Test:', line)
+                text += 'Datafile for Test: ' + 'bphalflist2.txt' + '\n'
+            else:
+                text += line
+        
+        fout2.close()
+        fout2 = open('bptest.par', 'wt')
+        fout2.write(text)
+        fout2.close()
+        fileflag = False
 
 
 #本体
